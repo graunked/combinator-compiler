@@ -18,36 +18,35 @@
     [`((= ,x) ,y) `((= ,(evaluate x)) ,(evaluate y))]
     [_ 'terminal]))
 
-(define (S spine)
-  (let ([x (cdar spine)]
-        [y (cdadr spine)]
-        [z (cdaddr spine)])
-    (cons (cons x z) (cons y z))))
-
 (define (reduce [spine '()])
   (displayln spine)
-  (match spine    
-    [(list-rest 'S (cons _ x) (cons _ y) (cons _ z) w) (cons (cons (cons x z) (cons y z)) w)]
-    [(list-rest 'K (cons _ x) (cons _ y) w)            (cons x w)]
-    [(list-rest 'I (cons _ x) w)                       (cons x w)]
-    [_ (cons (caar spine) spine)]))
-
-(define (evaluate spine)
   (match spine
-    [(list (? number? x)) spine]
-    [_ (evaluate (reduce spine))]))
+    [(list-rest 'S (cons _ x) (cons _ y) (cons _ z) tail) (cons (cons (cons x z) (cons y z))tail)]
+    [(list-rest 'K (cons _ x) (cons _ y) tail)            (cons x tail)]
+    [(list-rest 'I (cons _ x) tail)                       (cons x tail)]
+    
+    [(list-rest 'cond (cons _ #t) (cons _ x) (cons _ y) w) (cons x w)]
+    [(list-rest 'cond (cons _ #f) (cons _ x) (cons _ y) w) (cons y w)]
+    
+    [(list-rest 'plus (cons _ x) (cons _ y) w) (cons (+ (evaluate x) (evaluate y)) w)]
+    [(list-rest '= (cons _ x) (cons _ y) w) (cons (= (evaluate x) (evaluate y)) w)]
+    
+    [(list-rest (? symbol? x) (cons _ y) z) (cons (cons x y) z)]
+    
+    [(list (cons head _) _ ...) (cons head spine)]
+    [_ spine]))
 
-(define (evaluate2 expr)
-  (let [[reduction (reduce expr)]]
-    (displayln expr)
-    (match reduction
-      ['terminal expr]
-      [`((,x ,y) ,z) (evaluate `(,(evaluate `(,x ,y)) ,z))]
-      [`(,x (,y ,z)) `(,x ,(evaluate `(,y ,z)))]
-      [_ (evaluate reduction)])))
+(define (evaluate-spine spine)
+  (let ([reduction (reduce spine)])
+    (if (eq? reduction spine)
+        spine
+        (evaluate-spine reduction))))
 
-(define (test) (evaluate '(((S I) I) x)))
-(define (test2) (evaluate '((= 1) (I 1))))
+(define (evaluate expr)
+  (evaluate-spine (list expr)))
+
+(define (test) (evaluate '(((S . I) . I) . x)))
+(define (test2) (evaluate '((= . 1) . (I . 1))))
 
 (provide evaluate)
 
