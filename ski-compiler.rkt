@@ -20,6 +20,7 @@
 
 (define (reduce [spine '()])
   (displayln spine)
+  (displayln "")
   (match spine
     [(list-rest (cons 'S x) (cons _ y) (cons _ z) tail) (cons (cons (cons x z) (cons y z)) tail)]
     [(list-rest (cons 'K x) (cons _ y) tail)            (cons x tail)]
@@ -44,7 +45,7 @@
         (evaluate-spine reduction))))
 
 (define (evaluate expr)
-  (evaluate-spine (list expr)))
+  (car (evaluate-spine (list expr))))
 
 (define (test) (evaluate '(((S . I) . I) . x)))
 (define (test2) (evaluate '((= . 1) . (I . 1))))

@@ -8,8 +8,14 @@
 (define (desugar expr)
   (match expr
     [`(λ (,x) ,body) `(λ (,x) ,(desugar body))]
-    [`(let ((,v ,exp) ...) ,body) (desugar `((λ (,@v) ,body) ,@exp))]
+    [`(let ((,v ,exp) ...) ,body) (desugar (cons `(λ (,@v) ,body) exp))]
     [`(letrec [(,f ,lam)] ,body)  (desugar `(let ((,f (Y (λ (,f) ,lam)))) ,body))]
+    [_ expr]))
+
+(define (list-to-pairs expr)
+  (match expr
+    [`(λ (,x) ,body) `(λ (,x) ,(list-to-pairs body))]
+    [(list e1 e2) (cons (list-to-pairs e1) (list-to-pairs e2))]
     [_ expr]))
 
 (define factorial
@@ -21,4 +27,4 @@
        (fac x))))
 
 (define (test)
-  (run (ltc (desugar factorial)) 5))
+  (run (ltc (list-to-pairs (desugar factorial))) 5))
