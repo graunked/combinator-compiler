@@ -21,17 +21,18 @@
 (define (reduce [spine '()])
   (displayln spine)
   (match spine
-    [(list-rest 'S (cons _ x) (cons _ y) (cons _ z) tail) (cons (cons (cons x z) (cons y z))tail)]
-    [(list-rest 'K (cons _ x) (cons _ y) tail)            (cons x tail)]
-    [(list-rest 'I (cons _ x) tail)                       (cons x tail)]
+    [(list-rest (cons 'S x) (cons _ y) (cons _ z) tail) (cons (cons (cons x z) (cons y z)) tail)]
+    [(list-rest (cons 'K x) (cons _ y) tail)            (cons x tail)]
+    [(list-rest (cons 'I x) tail)                       (cons x tail)]
     
-    [(list-rest 'cond (cons _ #t) (cons _ x) (cons _ y) w) (cons x w)]
-    [(list-rest 'cond (cons _ #f) (cons _ x) (cons _ y) w) (cons y w)]
+    [(list-rest (cons 'cond #t) (cons _ x) (cons _ y) w) (cons x w)]
+    [(list-rest (cons 'cond #f) (cons _ x) (cons _ y) w) (cons y w)]
     
-    [(list-rest 'plus (cons _ x) (cons _ y) w) (cons (+ (evaluate x) (evaluate y)) w)]
-    [(list-rest '= (cons _ x) (cons _ y) w) (cons (= (evaluate x) (evaluate y)) w)]
+    [(list-rest (cons 'plus x) (cons _ y) w) (cons (+ (evaluate x) (evaluate y)) w)]
+    [(list-rest (cons '= x) (cons _ y) w) (cons (= (evaluate x) (evaluate y)) w)]
     
     [(list-rest (? symbol? x) (cons _ y) z) (cons (cons x y) z)]
+    [(list-rest (cons (? symbol? x) _) _) spine]
     
     [(list (cons head _) _ ...) (cons head spine)]
     [_ spine]))
