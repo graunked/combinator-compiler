@@ -22,4 +22,4 @@
 
 (define (test) (ltc compose))
 
-(provide ltc)
+(provide ltc lambda-to-combinators)

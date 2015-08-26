@@ -23,7 +23,7 @@
      (letrec [(fac (λ (y) 
                      (((cond ((= y) 0))
                            1)
-                           ((mult y) (fac ((- n) 1))))))]
+                           ((mult y) (fac ((minus y) 1))))))]
        (fac x))))
 
 (define (test)

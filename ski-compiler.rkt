@@ -18,18 +18,24 @@
     [`((= ,x) ,y) `((= ,(evaluate x)) ,(evaluate y))]
     [_ 'terminal]))
 
+
 (define (reduce [spine '()])
-  (displayln spine)
-  (displayln "")
   (match spine
     [(list-rest (cons 'S x) (cons _ y) (cons _ z) tail) (cons (cons (cons x z) (cons y z)) tail)]
     [(list-rest (cons 'K x) (cons _ y) tail)            (cons x tail)]
     [(list-rest (cons 'I x) tail)                       (cons x tail)]
     
+    [(list-rest (cons 'Y x) tail)                       (cons (cons x (cons 'Y x)) tail)]
+    
     [(list-rest (cons 'cond #t) (cons _ x) (cons _ y) w) (cons x w)]
     [(list-rest (cons 'cond #f) (cons _ x) (cons _ y) w) (cons y w)]
     
-    [(list-rest (cons 'plus x) (cons _ y) w) (cons (+ (evaluate x) (evaluate y)) w)]
+    [(list-rest (cons 'cond x) tail) (cons (cons 'cond (evaluate x)) tail)]
+    
+    [(list-rest (cons 'plus x) (cons _ y) w)  (cons (+ (evaluate x) (evaluate y)) w)]
+    [(list-rest (cons 'minus x) (cons _ y) w) (cons (- (evaluate x) (evaluate y)) w)]
+    [(list-rest (cons 'mult x) (cons _ y) w)  (cons (* (evaluate x) (evaluate y)) w)]
+    
     [(list-rest (cons '= x) (cons _ y) w) (cons (= (evaluate x) (evaluate y)) w)]
     
     [(list-rest (? symbol? x) (cons _ y) z) (cons (cons x y) z)]
@@ -48,7 +54,9 @@
   (car (evaluate-spine (list expr))))
 
 (define (test) (evaluate '(((S . I) . I) . x)))
-(define (test2) (evaluate '((= . 1) . (I . 1))))
+(define (test2) (evaluate '((= . 1) . (I . ((minus . 2) . 1)))))
+(define (test3) (evaluate '(((cond ((= 1) 2)) 'bad) 'good)))
+
 
 (provide evaluate)
 
